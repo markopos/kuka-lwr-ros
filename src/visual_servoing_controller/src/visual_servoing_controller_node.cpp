@@ -9,6 +9,8 @@
 
 cv::Mat G = cv::Mat::zeros(3,3,CV_32F);
 float score = 0;
+float G_l_values[9] = {1.0, 0.0, 250.0, 0.0, 1.0, 100.0, 0.0, 0.0, 1.0};
+cv::Mat G_l = cv::Mat(3, 3, CV_32F, G_l_values);
 
 void callback(const vtec_msgs::TrackingResult& msg)
 {
@@ -25,6 +27,7 @@ void callback(const vtec_msgs::TrackingResult& msg)
     G.at<float>(2,1) = msg.homography[7];
     G.at<float>(2,2) = msg.homography[8];
     score = msg.score;
+    G = G*G_l.inv();
 
 }
 
@@ -40,7 +43,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "visual_servoing_controller");
     ros::NodeHandle nh;
     ros::Subscriber sub = nh.subscribe("tracking",1, callback);
-    ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/visual_servoing_velocity/cmd_vel", 10);
+    ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/visual_servoing_controller/cmd_vel", 10);
 
     // message type for the tcp velocity
     geometry_msgs::Twist vel;
@@ -57,9 +60,10 @@ int main(int argc, char** argv)
     // TODO: add values that are currently not used (set to zero)
     cv::Mat H = cv::Mat::zeros(3,3,CV_32F);
     cv::Mat m_norm = cv::Mat::zeros(1,3,CV_32F);
-    float control_point[3] = {350.0, 200.0, 1.0};
-     cv::Mat p = cv::Mat(3,1,CV_32F, control_point);
-    float lambda = 0.3;
+    float control_point[3] = {0.0, 0.0, 1.0};
+    //float control_point[3] = {100.0, 100.0, 1.0};
+    cv::Mat p = cv::Mat(3,1,CV_32F, control_point);
+    float lambda = 5;
     cv::Mat control_mat_1 = cv::Mat::zeros(6,6,CV_32F);
     cv::Mat control_mat_2 = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat H_vex_help = cv::Mat::zeros(3,3,CV_32F);
@@ -71,7 +75,7 @@ int main(int argc, char** argv)
     cv::Mat velocity_cam = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat velocity_tcp = cv::Mat::zeros(6,1,CV_32F);
     // Transformation matrix from the camera frame to the TCP
-    float cam_to_tcp_rot_val[9] = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+    float cam_to_tcp_rot_val[9] = {0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
     cv::Mat cam_to_tcp_rot = cv::Mat(3, 3, CV_32F, cam_to_tcp_rot_val);
     float cam_to_tcp_tra_skew_val[9] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     cv::Mat cam_to_tcp_tra_skew = cv::Mat(3, 3, CV_32F, cam_to_tcp_tra_skew_val);
@@ -109,12 +113,12 @@ int main(int argc, char** argv)
         H_I = H-cv::Mat::eye(3,3,CV_32F);
         H_I_m = H_I*m_norm;
 
-        control_mat_2.at<float>(0,0) = H_vex_help.at<float>(2,1);
-        control_mat_2.at<float>(1,0) = H_vex_help.at<float>(0,2);
-        control_mat_2.at<float>(2,0) = H_vex_help.at<float>(1,0);
-        control_mat_2.at<float>(3,0) = H_I_m.at<float>(0,0);
-        control_mat_2.at<float>(4,0) = H_I_m.at<float>(1,0);
-        control_mat_2.at<float>(5,0) = H_I_m.at<float>(2,0);
+        control_mat_2.at<float>(0,0) = H_I_m.at<float>(0,0);
+        control_mat_2.at<float>(1,0) = H_I_m.at<float>(1,0);
+        control_mat_2.at<float>(2,0) = H_I_m.at<float>(2,0);
+        control_mat_2.at<float>(3,0) = H_vex_help.at<float>(2,1);
+        control_mat_2.at<float>(4,0) = H_vex_help.at<float>(0,2);
+        control_mat_2.at<float>(5,0) = H_vex_help.at<float>(1,0);
 
         // nonmetric control error and TCP velocity calculation
         control_error = control_mat_1*control_mat_2;
