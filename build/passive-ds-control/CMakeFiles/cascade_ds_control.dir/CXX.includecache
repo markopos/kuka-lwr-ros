@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/robotlab/catkin_ws/src/passive-ds-control/include/cascade_ds_controller.h
+passive_ds_typedefs.h
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_typedefs.h
+functional
+-
+
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_typedefs.h
+eigen3/Eigen/Dense
+/home/robotlab/catkin_ws/src/passive-ds-control/include/eigen3/Eigen/Dense
+
+/home/robotlab/catkin_ws/src/passive-ds-control/src/cascade_ds_controller.cpp
+cascade_ds_controller.h
+/home/robotlab/catkin_ws/src/passive-ds-control/src/cascade_ds_controller.h
+iostream
+-
+

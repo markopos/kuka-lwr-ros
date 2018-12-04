@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: peg_lwr_robot
+Description: Description of peg_lwr_robot
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/devel/lib 
+Requires: 

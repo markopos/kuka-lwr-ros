@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/build/get_joint_state/devel
+
+Name: get_joint_state
+Description: Description of get_joint_state
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/build/get_joint_state/devel/lib 
+Requires: 

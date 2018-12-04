@@ -1,0 +1,8 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~Kp" : \b [double]  min: 0.0, default: 0.0, max: 100.0
+- \b "~Ki" : \b [double]  min: 0.0, default: 0.0, max: 100.0
+- \b "~Kd" : \b [double]  min: 0.0, default: 0.0, max: 100.0
+

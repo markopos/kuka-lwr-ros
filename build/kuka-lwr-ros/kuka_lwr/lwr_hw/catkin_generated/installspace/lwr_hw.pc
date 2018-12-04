@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: lwr_hw
+Description: Description of lwr_hw
+Version: 0.2.0
+Cflags: -I/home/robotlab/catkin_ws/install/include
+Libs: -L/home/robotlab/catkin_ws/install/lib -llwr_hw -llwr_hw_gazebo_plugin
+Requires: control_toolbox controller_interface controller_manager hardware_interface realtime_tools joint_limits_interface roscpp tf urdf cmake_modules pluginlib kdl_parser transmission_interface gazebo_ros std_msgs

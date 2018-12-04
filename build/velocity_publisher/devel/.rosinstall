@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/robotlab/catkin_ws/build/velocity_publisher/devel/setup.sh

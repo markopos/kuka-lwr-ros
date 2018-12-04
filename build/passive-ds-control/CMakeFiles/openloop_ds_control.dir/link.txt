@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -O3 -std=c++11 -O3 -DNDEBUG  -shared -Wl,-soname,libopenloop_ds_control.so -o /home/robotlab/catkin_ws/devel/lib/libopenloop_ds_control.so CMakeFiles/openloop_ds_control.dir/src/openloop_ds_controller.cpp.o 

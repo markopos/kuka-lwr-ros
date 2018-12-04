@@ -1,0 +1,13 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_passive_ds" pkg="lwr_controllers" type="dynamic_passive_ds">
+  <param name="damping_eigval0" type="double" value="0.0" />
+  <param name="damping_eigval1" type="double" value="0.0" />
+  <param name="rot_stiffness" type="double" value="0.0" />
+  <param name="rot_damping" type="double" value="0.05" />
+  <param name="smooth_val" type="double" value="0.01" />
+  <param name="debug" type="bool" value="True" />
+  <param name="bSmooth" type="bool" value="True" />
+</node>
+\endverbatim
+

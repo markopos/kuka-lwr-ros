@@ -1,0 +1,12 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~K_0_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_1_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_2_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_3_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_4_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_5_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+- \b "~K_6_joint" : \b [double] stiffness parameter joint 0 min: 0.0, default: 500.0, max: 1000.0
+

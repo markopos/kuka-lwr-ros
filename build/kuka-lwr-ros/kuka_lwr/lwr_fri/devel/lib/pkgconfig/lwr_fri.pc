@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/build/kuka-lwr-ros/kuka_lwr/lwr_fri/devel
+
+Name: lwr_fri
+Description: Description of lwr_fri
+Version: 0.0.0
+Cflags: -I/home/robotlab/catkin_ws/build/kuka-lwr-ros/kuka_lwr/lwr_fri/devel/include -I/home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/include
+Libs: -L/home/robotlab/catkin_ws/build/kuka-lwr-ros/kuka_lwr/lwr_fri/devel/lib 
+Requires: message_runtime fri_library_ros lwr_console

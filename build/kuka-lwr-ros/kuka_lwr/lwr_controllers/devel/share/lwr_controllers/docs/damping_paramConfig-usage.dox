@@ -1,0 +1,13 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_lwr_damping" pkg="lwr_controllers" type="dynamic_lwr_damping">
+  <param name="damp_0_joint" type="double" value="0.0" />
+  <param name="damp_1_joint" type="double" value="0.0" />
+  <param name="damp_2_joint" type="double" value="0.0" />
+  <param name="damp_3_joint" type="double" value="0.0" />
+  <param name="damp_4_joint" type="double" value="0.0" />
+  <param name="damp_5_joint" type="double" value="0.0" />
+  <param name="damp_6_joint" type="double" value="0.0" />
+</node>
+\endverbatim
+

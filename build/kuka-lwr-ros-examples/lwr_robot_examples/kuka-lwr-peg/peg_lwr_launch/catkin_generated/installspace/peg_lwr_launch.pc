@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: peg_lwr_launch
+Description: Description of peg_lwr_launch
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/install/lib 
+Requires: 

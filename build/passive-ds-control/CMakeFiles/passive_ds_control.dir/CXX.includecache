@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_controller.h
+eigen3/Eigen/Dense
+/home/robotlab/catkin_ws/src/passive-ds-control/include/eigen3/Eigen/Dense
+passive_ds_typedefs.h
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_typedefs.h
+vector
+-
+smooth_truncation.h
+/home/robotlab/catkin_ws/src/passive-ds-control/include/smooth_truncation.h
+memory
+-
+
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_typedefs.h
+eigen3/Eigen/Dense
+/home/robotlab/catkin_ws/src/passive-ds-control/include/eigen3/Eigen/Dense
+
+/home/robotlab/catkin_ws/src/passive-ds-control/include/smooth_truncation.h
+passive_ds_typedefs.h
+/home/robotlab/catkin_ws/src/passive-ds-control/include/passive_ds_typedefs.h
+
+/home/robotlab/catkin_ws/src/passive-ds-control/src/passive_ds_controller.cpp
+passive_ds_controller.h
+/home/robotlab/catkin_ws/src/passive-ds-control/src/passive_ds_controller.h
+iostream
+-
+

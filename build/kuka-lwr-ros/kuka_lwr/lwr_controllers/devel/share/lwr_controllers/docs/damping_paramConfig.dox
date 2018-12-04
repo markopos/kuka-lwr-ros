@@ -1,0 +1,12 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~damp_0_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_1_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_2_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_3_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_4_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_5_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+- \b "~damp_6_joint" : \b [double] damping parameter joint 0 min: 0.0, default: 0.0, max: 100.0
+

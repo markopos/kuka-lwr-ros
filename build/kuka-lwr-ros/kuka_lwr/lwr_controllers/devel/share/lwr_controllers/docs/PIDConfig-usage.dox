@@ -1,0 +1,9 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_lwr_pid" pkg="lwr_controllers" type="dynamic_lwr_pid">
+  <param name="Kp" type="double" value="0.0" />
+  <param name="Ki" type="double" value="0.0" />
+  <param name="Kd" type="double" value="0.0" />
+</node>
+\endverbatim
+

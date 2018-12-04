@@ -10,18 +10,19 @@ int main(int argc, char** argv)
   geometry_msgs::Twist msg;
   int time = 0;
   float A = 1.0;
-  float B = 2.0;
+  float B = 0;
   float C = 1.0;
   float f = 0.05;
   float PI = 3.1415926535897;
-  int speed = +200; //unit:[deg/sec]
+  int speed = +20; //unit:[deg/sec]
   float angular_speed = speed*2*PI/360;//deg -> rad
 
-  ros::Rate loop_rate(10);
-  ROS_INFO("Sending Test velocity in z-direction (-> tcp up/down");
+  ros::Rate loop_rate(100);
+  ROS_INFO("Sending Test velocity");
   while (ros::ok()) {
     //msg.linear.x = A;
-    msg.linear.x = B*cos(f*time);
+    //msg.linear.x = B*cos(f*time);
+    msg.linear.x = B;
     //msg.linear.y = C;//C*sin(f*time);
 
     //msg.angular.x = angular_speed; //yaw; roll about Z
@@ -31,11 +32,18 @@ int main(int argc, char** argv)
     time++;
 	pub.publish(msg);
 	loop_rate.sleep();
-    if (time >= 200 && time%4 == 0) {
+    /*if (time >= 200 && time%4 == 0) {
         A = 0.95*A;
     }
     if (A <= 0.00001) {
         A = 0;
     }
+*/
+	if((time >=500) && (time <=900)){
+		B = 1;
+	}
+	else {
+	B = 0;
+	}
   }
 }

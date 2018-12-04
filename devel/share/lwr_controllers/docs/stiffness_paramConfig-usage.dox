@@ -1,0 +1,13 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_lwr_stiffness" pkg="lwr_controllers" type="dynamic_lwr_stiffness">
+  <param name="K_0_joint" type="double" value="500.0" />
+  <param name="K_1_joint" type="double" value="500.0" />
+  <param name="K_2_joint" type="double" value="500.0" />
+  <param name="K_3_joint" type="double" value="500.0" />
+  <param name="K_4_joint" type="double" value="500.0" />
+  <param name="K_5_joint" type="double" value="500.0" />
+  <param name="K_6_joint" type="double" value="500.0" />
+</node>
+\endverbatim
+

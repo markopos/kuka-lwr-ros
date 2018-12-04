@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: robot_motion_generation
+Description: Description of robot_motion_generation
+Version: 0.0.0
+Cflags: -I/home/robotlab/catkin_ws/install/include -I/usr/include/eigen3
+Libs: -L/home/robotlab/catkin_ws/install/lib -lrobot_motion_generation
+Requires: roscpp cmake_modules

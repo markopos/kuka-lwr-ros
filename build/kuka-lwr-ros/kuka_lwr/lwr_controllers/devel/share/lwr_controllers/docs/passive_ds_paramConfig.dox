@@ -1,0 +1,12 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~damping_eigval0" : \b [double] damping eigenvalue 0 min: 0.0, default: 0.0, max: 250.0
+- \b "~damping_eigval1" : \b [double] damping eigenvalue 1 min: 0.0, default: 0.0, max: 250.0
+- \b "~rot_stiffness" : \b [double] set rotation error stiffness min: 0.0, default: 0.0, max: 50.0
+- \b "~rot_damping" : \b [double] set rotation error stiffness min: 0.0, default: 0.05, max: 0.5
+- \b "~smooth_val" : \b [double] smooth measured vel min: 0.001, default: 0.01, max: 0.1
+- \b "~debug" : \b [bool] publish rot tf and torque and F min: False, default: True, max: True
+- \b "~bSmooth" : \b [bool] publish rot tf and torque and F min: False, default: True, max: True
+

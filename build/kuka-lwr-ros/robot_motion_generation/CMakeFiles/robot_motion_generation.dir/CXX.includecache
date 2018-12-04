@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/robot_motion_generation/include/robot_motion_generation/CDDynamics.h
+eigen3/Eigen/Dense
+-
+
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/robot_motion_generation/src/CDDynamics.cpp
+robot_motion_generation/CDDynamics.h
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/robot_motion_generation/src/robot_motion_generation/CDDynamics.h
+iostream
+-
+

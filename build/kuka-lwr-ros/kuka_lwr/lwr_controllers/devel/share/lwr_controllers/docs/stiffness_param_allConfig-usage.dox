@@ -1,0 +1,7 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_lwr_stiffness" pkg="lwr_controllers" type="dynamic_lwr_stiffness">
+  <param name="K" type="double" value="100.0" />
+</node>
+\endverbatim
+

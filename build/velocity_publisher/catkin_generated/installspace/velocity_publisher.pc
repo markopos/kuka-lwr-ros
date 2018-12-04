@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: velocity_publisher
+Description: Description of velocity_publisher
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/install/lib 
+Requires: 

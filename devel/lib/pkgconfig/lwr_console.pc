@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: lwr_console
+Description: Description of lwr_console
+Version: 0.0.0
+Cflags: -I/home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_console/include
+Libs: -L/home/robotlab/catkin_ws/devel/lib -llwr_console
+Requires: 

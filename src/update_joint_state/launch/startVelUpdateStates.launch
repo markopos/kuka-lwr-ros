@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<!-- Visual Servoing ROBOT LAUNCH FILE  "Simple example" -->
+
+	<node name="velocity_publisher_node" pkg="velocity_publisher" 	type="velocity_publisher_node" args="" respawn="false"/>
+	<node name="update_joint_state_node" pkg="update_joint_state" type="update_joint_state_node" args="" respawn="false"/>
+
+
+</launch>

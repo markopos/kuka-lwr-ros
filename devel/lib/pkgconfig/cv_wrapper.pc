@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: cv_wrapper
+Description: Description of cv_wrapper
+Version: 0.1.0
+Cflags: -I/home/robotlab/catkin_ws/src/vtec_ros/cv_wrapper/include -I/home/robotlab/catkin_ws/src/vtec/include
+Libs: -L/home/robotlab/catkin_ws/devel/lib -lcv_wrapper /home/robotlab/catkin_ws/src/vtec/lib/libhomography_optimizer.a /home/robotlab/catkin_ws/src/vtec/lib/libvtec_core.a
+Requires: cv_bridge

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/robotlab/catkin_ws/build/fri-library-ros/devel/setup.sh

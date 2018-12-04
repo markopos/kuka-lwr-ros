@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: update_joint_state
+Description: Description of update_joint_state
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/install/lib 
+Requires: 

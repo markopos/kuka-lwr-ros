@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<!-- Visual Servoing ROBOT LAUNCH FILE  "Simple example" -->
+
+
+	<include file = "$(find lwr_simple_example)/launch/real.launch">
+	<include file = "$(find lwr_fri)/launch/lwr_fri_console.launch">
+	<include file="$(find vtec_tracker)/launch/tracker_live.launch">
+
+</launch>
+

@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: get_curr_jacobian
+Description: Description of get_curr_jacobian
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/devel/lib 
+Requires: 

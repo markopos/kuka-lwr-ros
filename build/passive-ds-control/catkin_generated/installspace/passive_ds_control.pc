@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: passive_ds_control
+Description: Description of passive_ds_control
+Version: 0.0.0
+Cflags: -I/home/robotlab/catkin_ws/install/include
+Libs: -L/home/robotlab/catkin_ws/install/lib -lpassive_ds_control -lcascade_ds_control -lopenloop_ds_control
+Requires: 

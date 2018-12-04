@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/install
+
+Name: fri_library_ros
+Description: Description of fri_library_ros
+Version: 0.0.0
+Cflags: -I/home/robotlab/catkin_ws/install/include -I/usr/include/eigen3
+Libs: -L/home/robotlab/catkin_ws/install/lib -lfri_library_ros
+Requires: 
