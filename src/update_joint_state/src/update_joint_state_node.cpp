@@ -27,15 +27,15 @@ Eigen::MatrixXd             vel_tcp(NB_STATES,1);
 //geometry_msgs::Twist vel_tcp_out;
 
 int thrott_time = 10;
-
-//float delta = 0.03;
 float elapsedtime = 0.01; //Jacobi rate f = 100 Hz -> elpasedtime = 0.01
                            //make this variable global
+float limit_redundancy = 0.6;
+
 ros::WallTime start_, end_;
 
 void Callback_joint_states(const sensor_msgs::JointState& joint_states)
-{
-	//rate 200 Hz  !change to 100Hz!
+{	
+	//100 Hz
     //ROS_INFO("INSIDE Callback_joint_states");
     q_in.data = joint_states.position;
     joint_states_received = true;
@@ -84,16 +84,24 @@ int main(int argc, char** argv)
 {
     std_msgs::Float64MultiArray   q_out;
     std_msgs::Float64MultiArray   q_dot_arr;
+    int	k_zero;
     Eigen::MatrixXd             pinv(NB_JOINTS,NB_STATES);
-    Eigen::MatrixXd             q_dot(NB_JOINTS,1);
+    Eigen::MatrixXd             q_dot(NB_JOINTS,1), q_dot_z(NB_JOINTS,1);
+    Eigen::MatrixXd		q(NB_JOINTS,1);
+    Eigen::MatrixXd		Identity(NB_JOINTS,NB_JOINTS);
+    Eigen::MatrixXd		K_v(NB_JOINTS,NB_JOINTS);
+    Eigen::MatrixXd		K_p(NB_JOINTS,NB_JOINTS);
     sensor_msgs::JointState     joint_states_stamped;
     geometry_msgs::Twist	q_des, q_meas;
+    float		        q_dot_zero[NB_JOINTS], q_min[NB_JOINTS],q_max[NB_JOINTS];
+    int qcrit[7]; 
+    bool nulldynamic = 	false;
 
     ros::init(argc, argv, "update_joint_state");
-	ros::NodeHandle nh;
+    ros::NodeHandle nh;
 
     //ROS_INFO("Subscribing to topics");
-    ros::Subscriber sub = nh.subscribe("/lwr/joint_states",10, Callback_joint_states); //rate 200Hz -> why? -> change elapsed time
+    ros::Subscriber sub = nh.subscribe("/lwr/joint_states",10, Callback_joint_states);
     ros::Subscriber sub_vel = nh.subscribe("/visual_servoing_controller/cmd_vel/",10, Callback_vel_cmd); // change!
     ros::Subscriber sub_jacobian = nh.subscribe("/lwr/jacobian_matrix",10, Callback_jacobi);
     //ros::Publisher pub = nh.advertise<std_msgs::Float64MultiArray >("/lwr/joint_controllers/command_joint_pos",10);
@@ -103,6 +111,10 @@ int main(int argc, char** argv)
     ros::Publisher pub_q_des = nh.advertise<geometry_msgs::Twist >("/joint_states/out",10);
     ros::Publisher pub_q_meas = nh.advertise<geometry_msgs::Twist >("/joint_states/in",10);
     //ros::Publisher pub_vel = nh.advertise<geometry_msgs::Twist >("/lwr/joint_controllers/command_vel",10);
+    //ros::Publisher pub_q_in_prev = nh.advertise<std_msgs::Float64MultiArray >("/q_in_prev",10);
+    ros::Publisher pub_q_in = nh.advertise<std_msgs::Float64MultiArray >("/q_in",10);
+    //ros::Publisher pub_q_meas_prev = nh.advertise<geometry_msgs::Twist>("/joint_states/in_prev",10);
+ 
  
     // frequency of published messages
     ros::Rate loop_rate(100); //Sending q with 100Hz
@@ -112,6 +124,7 @@ int main(int argc, char** argv)
         q_dot_arr.data.resize(NB_JOINTS);
         q_out.data.resize(NB_JOINTS);
         q_in.data.resize(NB_JOINTS);
+	q_dot_in.data.resize(NB_JOINTS);
         q_dot_arr.data[0] = 0;
         q_dot_arr.data[1] = 0;
         q_dot_arr.data[2] = 0;
@@ -126,13 +139,68 @@ int main(int argc, char** argv)
         vel_tcp(3,0) = 0;
         vel_tcp(4,0) = 0;
         vel_tcp(5,0) = 0;
-	q_dot_in.data.resize(7);
         q_dot_in.data[0] = 0;
         q_dot_in.data[1] = 0;
         q_dot_in.data[2] = 0;
         q_dot_in.data[3] = 0;
         q_dot_in.data[4] = 0;
         q_dot_in.data[5] = 0;
+        q_dot_in.data[6] = 0;
+        q_dot_zero[0] = 0;
+        q_dot_zero[1] = 0;
+        q_dot_zero[2] = 0;
+        q_dot_zero[3] = 0;
+        q_dot_zero[4] = 0;
+        q_dot_zero[5] = 0;
+        q_dot_zero[6] = 0;
+        q(0,0) = 0;
+        q(1,0) = 0;
+        q(2,0) = 0;
+        q(3,0) = 0;
+        q(4,0) = 0;
+        q(5,0) = 0;
+        q(6,0) = 0;
+	q_dot(0,0) = 0;
+	q_dot(1,0) = 0;
+	q_dot(2,0) = 0;
+	q_dot(3,0) = 0;
+	q_dot(4,0) = 0;
+	q_dot(5,0) = 0;
+	q_dot(6,0) = 0;
+	q_dot_z(0,0) = 0;
+	q_dot_z(1,0) = 0;
+	q_dot_z(2,0) = 0;
+	q_dot_z(3,0) = 0;
+	q_dot_z(4,0) = 0;
+	q_dot_z(5,0) = 0;
+	q_dot_z(6,0) = 0;
+	q_max[0] = +2.9670; //(rad)
+	q_max[1] = +2.0943;
+	q_max[2] = +2.9670;
+	q_max[3] = +2.0943;
+	q_max[4] = +2.9670;
+	q_max[5] = +2.0943;
+	q_max[6] = +2.9670;
+	q_min[0] = -2.9670;
+	q_min[1] = -2.0943;
+	q_min[2] = -2.9670;
+	q_min[3] = -2.0943;
+	q_min[4] = -2.9670;
+	q_min[5] = -2.0943;
+	q_min[6] = -2.9670;
+	qcrit[0] = limit_redundancy*q_max[0];
+	qcrit[1] = limit_redundancy*q_max[1];
+	qcrit[2] = limit_redundancy*q_max[2];
+	qcrit[3] = limit_redundancy*q_max[3];
+	qcrit[4] = limit_redundancy*q_max[4];
+	qcrit[5] = limit_redundancy*q_max[5];
+	qcrit[6] = limit_redundancy*q_max[6];
+	
+        Identity = MatrixXd::Identity(NB_JOINTS,NB_JOINTS);
+	K_v = 1.1 * Identity;
+	K_p = 1.5 * Identity;
+	k_zero = 1;
+	//q_dotdot.data.resize(NB_JOINTS);
          //ROS_INFO("...finish");
 
 
@@ -146,11 +214,51 @@ int main(int argc, char** argv)
             //qk+1 = qk + (jacobipseudoinv * vel) * elapsedtime
 	    start_ = ros::WallTime::now();
             pseudo_inverse(jacobimatrix, pinv, false); // 1 ms delay
-	
+
 	   //q_dot rate 100 Hz
-            q_dot = pinv * vel_tcp; // q_dot >> joint_states/vel
-    //std::cout << "q_dot: " << q_dot << std::endl;
-    //std::cout << "vel_tcp: " << vel_tcp << std::endl;
+	// 2. Term zur Regelung der Nulldynamik
+	    //q_dotdot = - K_v * q_dot - K_p * q;
+
+		/* q_dot_zero[0] = -(k_zero/NB_JOINTS)*(q_in.data[0]*q_dot_arr.data[0])/(q_max[0]-q_min[0]);
+		for(int i = 1; i < NB_JOINTS ; i++){
+		q_dot_zero[i] = -(k_zero/NB_JOINTS)*(q_in.data[i]*q_dot_arr.data[i])/(q_max[i]-q_min[i])+q_dot_zero[i-1]; */
+/*
+		q_dot_zero[0] = -(k_zero/NB_JOINTS)*(q_in.data[0])/(q_max[0]-q_min[0]);
+		for(int i = 1; i < NB_JOINTS ; i++){
+		q_dot_zero[i] = -(k_zero/NB_JOINTS)*(q_in.data[i])/(q_max[i]-q_min[i])+q_dot_zero[i-1];
+		}  */
+		/*for(int i = 0; i < NB_JOINTS ; i++){
+		q_dot_zero[i] = -(k_zero/NB_JOINTS)*(q_in.data[i]*q_dot_arr.data[i])/(q_max[i]-q_min[i]); 
+		}*/
+		for(int i = 0; i < NB_JOINTS ; i++){
+		q_dot_zero[i] = -(k_zero/NB_JOINTS)*(q_in.data[i])/((q_max[i]-q_min[i])*(q_max[i]-q_min[i])); 
+		}
+	   q_dot_z(0,0) = q_dot_zero[0];
+	   q_dot_z(1,0) = q_dot_zero[1];
+	   q_dot_z(2,0) = q_dot_zero[2];
+	   q_dot_z(3,0) = q_dot_zero[3];
+	   q_dot_z(4,0) = q_dot_zero[4];
+	   q_dot_z(5,0) = q_dot_zero[5];
+	   q_dot_z(6,0) = q_dot_zero[6];
+	/*    
+	for(int i = 0; i < NB_JOINTS; i++)
+	{
+	    if(q_in.data[i] > qcrit[i] || q_in.data[i] < -qcrit[i] || nulldynamic == true)
+	
+		nulldynamic = true;
+	
+	}
+	std::cout << "nulldynamic: "<< nulldynamic << std::endl;
+	if(nulldynamic == true)*/
+            q_dot = pinv * vel_tcp + (Identity - (pinv*jacobimatrix))*q_dot_z; // q_dot >> joint_states/vel
+	//else 
+	  //  q_dot = pinv * vel_tcp;
+    std::cout << "q_dot_z: " << q_dot_z << std::endl;
+    std::cout << "pinv x jacobi: " << pinv*jacobimatrix << std::endl;
+    std::cout << "K_v x q_dot: " << K_v*q_dot << std::endl;
+    std::cout << "K_p x q: " << K_p*q << std::endl;
+
+	    nulldynamic = false;
 
             //MultiArray <- Matrix
             q_dot_arr.data[0] = q_dot(0,0);
@@ -160,11 +268,22 @@ int main(int argc, char** argv)
             q_dot_arr.data[4] = q_dot(4,0);
             q_dot_arr.data[5] = q_dot(5,0);
             q_dot_arr.data[6] = q_dot(6,0);
-            q_dot_arr.data.resize(7);
+            //q_dot_arr.data.resize(7);
+	    
+	    //Matrix <- Multiarray
+	    q(0,0) = q_in.data[0];
+	    q(1,0) = q_in.data[1];
+	    q(2,0) = q_in.data[2];
+	    q(3,0) = q_in.data[3];
+	    q(4,0) = q_in.data[4];
+	    q(5,0) = q_in.data[5];
+	    q(6,0) = q_in.data[6];
+
 
             for(int i=0; i<NB_JOINTS; i++)
             {
                  q_out.data[i] = q_in.data[i] + (q_dot_arr.data[i] * elapsedtime);
+
             }
     //std::cout << "q_in: " << q_in << std::endl;
     //std::cout << "q_out: " << q_out << std::endl;
@@ -176,7 +295,8 @@ int main(int argc, char** argv)
 	    q_des.linear.x = q_out.data[3];
 	    q_des.linear.y = q_dot_arr.data[3];
 	    q_meas.linear.x = q_in.data[3];
-	    q_meas.linear.y = q_dot_in.data[3];
+	    q_meas.linear.y = q_dot_in.data[3];//taken from joint_states.velocity
+	
 
 
             //ROS_INFO("After q calc -> rdy to publish q !");
@@ -189,8 +309,10 @@ int main(int argc, char** argv)
             pub_joint_state.publish(joint_states_stamped); //publish q with time stamp
 	    pub_q_des.publish(q_des);
 	    pub_q_meas.publish(q_meas);
+	    pub_q_in.publish(q_in);
 	    //pub_vel.publish(vel_tcp_out);
 		joint_states_received = false;
+//sub topic time >> thd -> send q_out = q_in
 	}
 	 end_ = ros::WallTime::now();
 	double execution_time = (end_ - start_).toNSec() * 1e-6;
