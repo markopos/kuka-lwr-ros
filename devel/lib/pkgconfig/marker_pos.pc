@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: marker_pos
+Description: Description of marker_pos
+Version: 0.0.1
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/devel/lib 
+Requires: 

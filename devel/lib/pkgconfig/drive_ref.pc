@@ -1,0 +1,8 @@
+prefix=/home/robotlab/catkin_ws/devel
+
+Name: drive_ref
+Description: Description of drive_ref
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/robotlab/catkin_ws/devel/lib 
+Requires: 
