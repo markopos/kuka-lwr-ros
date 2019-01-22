@@ -40,13 +40,14 @@ int main(int argc, char** argv)
         // list of parameters
         q_arr.data.resize(NB_JOINTS);
 
-        q_arr.data[0] = -0.09178700298070908;
-        q_arr.data[1] = 0.09807884693145752;
-        q_arr.data[2] = 0.06194337457418442;
-        q_arr.data[3] = -0.9739689826965332;
-        q_arr.data[4] = -0.005563236773014069;
-        q_arr.data[5] = -1.0929865837097168;
-        q_arr.data[6] = 0.06928134709596634;
+
+        q_arr.data[0] = -0.6451053023338318;
+        q_arr.data[1] = 0.32801616191864014;
+        q_arr.data[2] = 1.1523234844207764;
+        q_arr.data[3] = -0.6192461848258972;
+        q_arr.data[4] = -0.4640597403049469;
+        q_arr.data[5] = -0.8155491948127747;
+        q_arr.data[6] = -0.12600284814834595;
 
 	
         while (ros::ok())

@@ -12,6 +12,8 @@ kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cp
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_hw/include/lwr_hw/lwr_hw.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_hw/include/lwr_hw/lwr_kuka_interface.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/control_toolbox/filters.h
+kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/geometry_msgs/Twist.h
+kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/geometry_msgs/Vector3.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/hardware_interface/controller_info.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/hardware_interface/hardware_interface.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/hardware_interface/interface_resources.h
@@ -104,7 +106,10 @@ kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cp
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/ros/wall_timer.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/ros/wall_timer_options.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/rosconsole/macros_generated.h
+kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/sensor_msgs/JointState.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/std_msgs/Duration.h
+kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/std_msgs/Float64.h
+kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/std_msgs/Header.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/transmission_interface/transmission_info.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/transmission_interface/transmission_parser.h
 kuka-lwr-ros/kuka_lwr/lwr_fri/CMakeFiles/lwr_fri.dir/src/lwr_fri/LWRRobot_FRI.cpp.o: /opt/ros/kinetic/include/urdf/model.h

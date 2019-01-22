@@ -20,6 +20,8 @@
 #define NB_JOINTS 7
 #define NB_STATES 6
 
+int gain = 200;
+
 std_msgs::Float64MultiArray   q_dot_in;
 bool joint_states_received = false;
 Eigen::MatrixXd             jacobi(NB_STATES,NB_JOINTS);
@@ -59,7 +61,7 @@ int main(int argc, char** argv)
     //ROS_INFO("Subscribing to topics");
     ros::Subscriber sub = nh.subscribe("/lwr/joint_states",10, Callback_joint_states);
     ros::Subscriber sub_jacobian = nh.subscribe("/lwr/jacobian_matrix",10, Callback_jacobi);
-    ros::Publisher pub_joint_state = nh.advertise<geometry_msgs::Twist>("/TCP_measured/vel",10);
+    ros::Publisher pub_joint_state = nh.advertise<geometry_msgs::Twist>("/TCP_measured/vel_gain",10);
 
  
     // frequency of published messages
@@ -102,12 +104,12 @@ int main(int argc, char** argv)
 
             for(int i=0; i<NB_STATES; i++)
             {
-                 vel_tcp_out.linear.x = vel_tcp_calc(0,0);
-		 vel_tcp_out.linear.y = vel_tcp_calc(1,0);
-		 vel_tcp_out.linear.z = vel_tcp_calc(2,0);
-		 vel_tcp_out.angular.x = vel_tcp_calc(3,0);
-		 vel_tcp_out.angular.y = vel_tcp_calc(4,0);
-		 vel_tcp_out.angular.z = vel_tcp_calc(5,0);
+                 vel_tcp_out.linear.x = vel_tcp_calc(0,0)*gain;
+		 vel_tcp_out.linear.y = vel_tcp_calc(1,0)*gain;
+		 vel_tcp_out.linear.z = vel_tcp_calc(2,0)*gain;
+		 vel_tcp_out.angular.x = vel_tcp_calc(3,0)*gain;
+		 vel_tcp_out.angular.y = vel_tcp_calc(4,0)*gain;
+		 vel_tcp_out.angular.z = vel_tcp_calc(5,0)*gain;
             }
 		
 

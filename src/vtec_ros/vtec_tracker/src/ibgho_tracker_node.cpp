@@ -136,7 +136,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
 
       if(state != STARTING){
-         zncc = ibg_optimizer->optimize(cur_img, H_test, alpha_test, beta_test, VTEC::ZNCC_PREDICTOR);
+         //zncc = ibg_optimizer->optimize(cur_img, H_test, alpha_test, beta_test, VTEC::NO_PREDICTOR);
+	 zncc = ibg_optimizer->optimize(cur_img, H_test, alpha_test, beta_test, VTEC::ZNCC_PREDICTOR);
       }
 
       if(state == NOT_TRACKING && zncc>0.7 || state == TRACKING && zncc > 0.0 ){

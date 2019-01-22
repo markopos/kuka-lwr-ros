@@ -14,6 +14,9 @@
 # EXTERNAL cache entries
 ########################
 
+//No help, variable specified on the command line.
+ARUCO_PATH:UNINITIALIZED=/usr/local
+
 //The threading library used by boost-thread
 BOOST_THREAD_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libpthread.so
 
@@ -629,6 +632,9 @@ actionlib_DIR:PATH=/opt/ros/kinetic/share/actionlib/cmake
 //The directory containing a CMake configuration file for actionlib_msgs.
 actionlib_msgs_DIR:PATH=/opt/ros/kinetic/share/actionlib_msgs/cmake
 
+//The directory containing a CMake configuration file for aruco.
+aruco_DIR:PATH=/opt/ros/kinetic/share/aruco/cmake
+
 //Dependencies for target
 cascade_ds_control_LIB_DEPENDS:STATIC=
 
@@ -674,8 +680,26 @@ cv_wrapper_LIB_DEPENDS:STATIC=general;/opt/ros/kinetic/lib/libcv_bridge.so;gener
 //Value Computed by CMake
 cv_wrapper_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/vtec_ros/cv_wrapper
 
+//Value Computed by CMake
+drive_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/drive
+
+//Value Computed by CMake
+drive_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/drive
+
+//Value Computed by CMake
+drive_ref_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/drive_ref
+
+//Value Computed by CMake
+drive_ref_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/drive_ref
+
 //The directory containing a CMake configuration file for dynamic_reconfigure.
 dynamic_reconfigure_DIR:PATH=/opt/ros/kinetic/share/dynamic_reconfigure/cmake
+
+//Value Computed by CMake
+dynamixel_gripper_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/dynamixel_gripper
+
+//Value Computed by CMake
+dynamixel_gripper_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/dynamixel_gripper
 
 //The directory containing a CMake configuration file for eigen_conversions.
 eigen_conversions_DIR:PATH=/opt/ros/kinetic/share/eigen_conversions/cmake
@@ -912,6 +936,18 @@ lwr_simple_example_LIB_DEPENDS:STATIC=general;lwr_ros_client;general;lwr_ros_int
 //Value Computed by CMake
 lwr_simple_example_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/kuka-lwr-ros-examples/lwr_task_examples/lwr_simple_example
 
+//Value Computed by CMake
+marker_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/marker
+
+//Value Computed by CMake
+marker_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/marker
+
+//Value Computed by CMake
+marker_pos_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/marker_pos
+
+//Value Computed by CMake
+marker_pos_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/marker_pos
+
 //The directory containing a CMake configuration file for message_filters.
 message_filters_DIR:PATH=/opt/ros/kinetic/share/message_filters/cmake
 
@@ -968,6 +1004,12 @@ robot_motion_generation_LIB_DEPENDS:STATIC=general;/opt/ros/kinetic/lib/libroscp
 
 //Value Computed by CMake
 robot_motion_generation_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/kuka-lwr-ros/robot_motion_generation
+
+//Value Computed by CMake
+ros_aruco_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/ros_aruco
+
+//Value Computed by CMake
+ros_aruco_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/ros_aruco
 
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/kinetic/share/rosconsole/cmake
@@ -1067,6 +1109,30 @@ visual_servoing_controller_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/visu
 
 //Value Computed by CMake
 visual_servoing_controller_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/visual_servoing_controller
+
+//Value Computed by CMake
+visual_servoing_controller_gripper_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/visual_servoing_controller_gripper
+
+//Value Computed by CMake
+visual_servoing_controller_gripper_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/visual_servoing_controller_gripper
+
+//Value Computed by CMake
+visual_servoing_controller_track_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/visual_servoing_controller_track
+
+//Value Computed by CMake
+visual_servoing_controller_track_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/visual_servoing_controller_track
+
+//Value Computed by CMake
+visual_servoing_controller_track_node_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/visual_servoing_controller_track
+
+//Value Computed by CMake
+visual_servoing_controller_track_node_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/visual_servoing_controller_track
+
+//Value Computed by CMake
+visual_servoing_controller_traj_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/visual_servoing_controller_traj
+
+//Value Computed by CMake
+visual_servoing_controller_traj_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/visual_servoing_controller_traj
 
 //The directory containing a CMake configuration file for vtec.
 vtec_DIR:PATH=/home/robotlab/catkin_ws/src/vtec/build
@@ -1245,7 +1311,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=28
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=36
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

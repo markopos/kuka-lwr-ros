@@ -6,6 +6,46 @@
 
 #IncludeRegexTransform: 
 
+/home/robotlab/catkin_ws/devel/include/dynamixel_gripper/DualGripperGrasp.h
+ros/service_traits.h
+-
+dynamixel_gripper/DualGripperGraspRequest.h
+-
+dynamixel_gripper/DualGripperGraspResponse.h
+-
+
+/home/robotlab/catkin_ws/devel/include/dynamixel_gripper/DualGripperGraspRequest.h
+string
+-
+vector
+-
+map
+-
+ros/types.h
+-
+ros/serialization.h
+-
+ros/builtin_message_traits.h
+-
+ros/message_operations.h
+-
+
+/home/robotlab/catkin_ws/devel/include/dynamixel_gripper/DualGripperGraspResponse.h
+string
+-
+vector
+-
+map
+-
+ros/types.h
+-
+ros/serialization.h
+-
+ros/builtin_message_traits.h
+-
+ros/message_operations.h
+-
+
 /home/robotlab/catkin_ws/devel/include/vtec_msgs/TrackingResult.h
 string
 -
@@ -43,6 +83,10 @@ sensor_msgs/Temperature.h
 -
 vtec_msgs/TrackingResult.h
 -
+math.h
+-
+dynamixel_gripper/DualGripperGrasp.h
+/home/robotlab/catkin_ws/src/visual_servoing_controller/src/dynamixel_gripper/DualGripperGrasp.h
 
 /opt/ros/kinetic/include/geometry_msgs/Point.h
 string

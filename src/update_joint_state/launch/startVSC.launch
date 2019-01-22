@@ -9,7 +9,6 @@
 
 	<node name="visual_servoing_controller_node" pkg="visual_servoing_controller" 	type="visual_servoing_controller_node" args="" respawn="false"/>
 	<node name="update_joint_state_node" pkg="update_joint_state" type="update_joint_state_node" args="" respawn="false"/>
-	<node name="joint_vel_to_world_vel_node" pkg="joint_vel_to_world_vel" type="joint_vel_to_world_vel_node" args="" respawn="false"/>
 
 
 </launch>

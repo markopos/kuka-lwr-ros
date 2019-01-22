@@ -201,6 +201,12 @@ lwr_fri/LWRRobot_FRI.h
 /home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/lwr_fri/LWRRobot_FRI.h
 LinuxAbstraction.h
 /home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/LinuxAbstraction.h
+sensor_msgs/JointState.h
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/sensor_msgs/JointState.h
+std_msgs/Float64.h
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/std_msgs/Float64.h
+geometry_msgs/Twist.h
+/home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/geometry_msgs/Twist.h
 
 /home/robotlab/catkin_ws/src/kuka-lwr-ros/kuka_lwr/lwr_fri/src/lwr_fri/lwr_fri_console.cpp
 lwr_fri/lwr_fri_console.h
@@ -1975,6 +1981,22 @@ ros/message_operations.h
 -
 
 /opt/ros/kinetic/include/std_msgs/Empty.h
+string
+-
+vector
+-
+map
+-
+ros/types.h
+-
+ros/serialization.h
+-
+ros/builtin_message_traits.h
+-
+ros/message_operations.h
+-
+
+/opt/ros/kinetic/include/std_msgs/Float64.h
 string
 -
 vector

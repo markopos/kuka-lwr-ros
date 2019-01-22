@@ -8,7 +8,9 @@
 
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/robotlab/catkin_ws/build/visual_servoing_controller/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/robotlab/catkin_ws/build/visual_servoing_controller/devel/lib:$LD_LIBRARY_PATH"
 export PATH="/opt/ros/kinetic/bin:/usr/lib/x86_64-linux-gnu/qt4/bin:/usr/bin:/home/robotlab/bin:/home/robotlab/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+export PKG_CONFIG_PATH="/home/robotlab/catkin_ws/build/visual_servoing_controller/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD="/home/robotlab/catkin_ws/build/visual_servoing_controller"
 export ROSLISP_PACKAGE_DIRECTORIES="/home/robotlab/catkin_ws/build/visual_servoing_controller/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
 export ROS_PACKAGE_PATH="/home/robotlab/catkin_ws/src/visual_servoing_controller:$ROS_PACKAGE_PATH"

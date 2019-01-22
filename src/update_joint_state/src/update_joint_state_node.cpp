@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 {
     std_msgs::Float64MultiArray   q_out;
     std_msgs::Float64MultiArray   q_dot_arr;
-    int	k_zero;
+    float			k_zero;
     Eigen::MatrixXd             pinv(NB_JOINTS,NB_STATES);
     Eigen::MatrixXd             q_dot(NB_JOINTS,1), q_dot_z(NB_JOINTS,1);
     Eigen::MatrixXd		q(NB_JOINTS,1);
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     sensor_msgs::JointState     joint_states_stamped;
     geometry_msgs::Twist	q_des, q_meas;
     float		        q_dot_zero[NB_JOINTS], q_min[NB_JOINTS],q_max[NB_JOINTS];
-    int qcrit[7]; 
+    float qcrit[7]; 
     bool nulldynamic = 	false;
 
     ros::init(argc, argv, "update_joint_state");
@@ -197,9 +197,9 @@ int main(int argc, char** argv)
 	qcrit[6] = limit_redundancy*q_max[6];
 	
         Identity = MatrixXd::Identity(NB_JOINTS,NB_JOINTS);
-	K_v = 1.1 * Identity;
-	K_p = 1.5 * Identity;
-	k_zero = 1;
+	//K_v = 1.1 * Identity;
+	//K_p = 1.5 * Identity;
+	k_zero = 5;
 	//q_dotdot.data.resize(NB_JOINTS);
          //ROS_INFO("...finish");
 
@@ -254,9 +254,8 @@ int main(int argc, char** argv)
 	//else 
 	  //  q_dot = pinv * vel_tcp;
     std::cout << "q_dot_z: " << q_dot_z << std::endl;
+    std::cout << "q_in: " << q_in.data[0] << std::endl;
     std::cout << "pinv x jacobi: " << pinv*jacobimatrix << std::endl;
-    std::cout << "K_v x q_dot: " << K_v*q_dot << std::endl;
-    std::cout << "K_p x q: " << K_p*q << std::endl;
 
 	    nulldynamic = false;
 
@@ -300,10 +299,10 @@ int main(int argc, char** argv)
 
 
             //ROS_INFO("After q calc -> rdy to publish q !");
-
-	if(joint_states_received)
+	//vel_norm = cv::norm(vel_tcp, zero, cv::NORM_L2);
+	if(joint_states_received && vel_tcp.norm() > 0.0)
 	{
-		
+		//if we do not receive any vel -> stop sending joint states! -> avoid drift
             pub.publish(q_out); //first pub must be triggered by first sub to joint_states!!!
             pub_q_dot.publish(q_dot_arr); //publish q_dot
             pub_joint_state.publish(joint_states_stamped); //publish q with time stamp
