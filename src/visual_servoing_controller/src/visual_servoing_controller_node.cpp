@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <geometry_msgs/Twist.h> 
+#include <geometry_msgs/Twist.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/aruco.hpp>
@@ -11,7 +11,9 @@
 
 cv::Mat G = cv::Mat::zeros(3,3,CV_32F);
 float score = 0;
-float G_l_values[9] = {1.0, 0.0, 145.0, 0.0, 1.0, 65.0, 0.0, 0.0, 1.0};
+float G_l_x = 10.0;//145.0;
+float G_l_y = 20.0;//65.0;
+float G_l_values[9] = {1.0, 0.0, G_l_x, 0.0, 1.0, G_l_y, 0.0, 0.0, 1.0};
 cv::Mat G_l = cv::Mat(3, 3, CV_32F, G_l_values);
 float pi = 3.14159;
 int r = 60;
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::Subscriber sub = nh.subscribe("tracking",1, callback);
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/visual_servoing_controller/cmd_vel", 10);
-    ros::Publisher pub_error = nh.advertise<geometry_msgs::Twist>("/visual_servoing_controller/control_error", 10);
+    ros::Publisher pub_control_error = nh.advertise<geometry_msgs::Twist>("/visual_servoing_controller/control_error", 10);
     ros::ServiceClient client = nh.serviceClient<dynamixel_gripper::DualGripperGrasp>("dual_gripper_grasp");
 
     // message type for the tcp velocity
@@ -68,8 +70,6 @@ int main(int argc, char** argv)
     float intrinsic_values[9] = {700.0, 0.0000, 305.399268, 0.0000, 700.0, 245.923820, 0.0000, 0.0000, 1.0000};
     cv::Mat K = cv::Mat(3, 3, CV_32F, intrinsic_values);
     // parameters from the ddvs conceptional implementation
-    // TODO: change names make them clearer, read control point from .yaml file
-    // TODO: add values that are currently not used (set to zero)
     cv::Mat H = cv::Mat::zeros(3,3,CV_32F);
     cv::Mat m_norm = cv::Mat::zeros(1,3,CV_32F);
     float control_point[3] = {0.0, 0.0, 1.0};
@@ -103,16 +103,18 @@ int main(int argc, char** argv)
     int time = 0;
     double control_error_norm;
     double control_error_exp;
-    
+
+    nh.param<float>("bbox_pos_x", G_l_x, 200);
+    nh.param<float>("bbox_pos_y", G_l_y, 150);
+
+    G_l.at<float>(0,2) = G_l_x;
+    G_l.at<float>(1,2) = G_l_y;
+
 
     while (ros::ok()) {
         //compute control law
         H = K.inv()*G*K;
         m_norm = K.inv()*p;
-	
-	//G_l.at<float>(0,2) = 145.0 + r*sin(f*time);
-	//G_l.at<float>(1,2) = 65.0 + r*sin(2*f*time);
-	//std::cout << "G_l: " << G_l << std::endl; 
 
         // set the values for the control matrix for the calculation of the nonmetric control error
         // according to SILVEIRA et al.: DECOUPLED INTENSITY-BASED NONMETRIC VISUAL SERVO CONTROL
@@ -128,9 +130,8 @@ int main(int argc, char** argv)
         control_mat_1.at<float>(3,3) = 1.0;
         control_mat_1.at<float>(4,4) = 1.0;
         control_mat_1.at<float>(5,5) = 1.0;
-	control_mat_1.at<float>(4,0) = 0.0;//-1.0;
-	control_mat_1.at<float>(3,1) = 0.0;//1.0; //speed up, define some param before the while
-
+        control_mat_1.at<float>(4,0) = 0.0;//-1.0;
+        control_mat_1.at<float>(3,1) = 0.0;//1.0; //speed up, define some param before the while
 
         H_vex_help = H-H.t();
 
@@ -146,28 +147,28 @@ int main(int argc, char** argv)
 
         // nonmetric control error and TCP velocity calculation
         control_error = control_mat_1*control_mat_2;
-	control_error_norm = cv::norm(control_error, zero, cv::NORM_L2);
-	std::cout << "control_err_norm:" << control_error_norm << std::endl;
-	//cv::exp(-gamma*control_error_norm, control_error_exp);
-	lambda = alpha * exp(-gamma*control_error_norm);	
-	std::cout << "lambda:" << lambda << std::endl;
-	//lambda = alpha * control_error_exp;
-	/*control_error.at<float>(0,0) = pow(control_error.at<float>(0,0),3);
-	control_error.at<float>(1,0) = pow(control_error.at<float>(1,0),3);
-	control_error.at<float>(2,0) = pow(control_error.at<float>(2,0),3);
-	control_error.at<float>(3,0) = pow(control_error.at<float>(3,0),3);
-	control_error.at<float>(4,0) = pow(control_error.at<float>(4,0),3);
-	control_error.at<float>(5,0) = pow(control_error.at<float>(5,0),3);*/
+        control_error_norm = cv::norm(control_error, zero, cv::NORM_L2);
+        std::cout << "control_err_norm:" << control_error_norm << std::endl;
+        //cv::exp(-gamma*control_error_norm, control_error_exp);
+        lambda = alpha * exp(-gamma*control_error_norm);
+        std::cout << "lambda:" << lambda << std::endl;
+        //lambda = alpha * control_error_exp;
+        /*control_error.at<float>(0,0) = pow(control_error.at<float>(0,0),3);
+        control_error.at<float>(1,0) = pow(control_error.at<float>(1,0),3);
+        control_error.at<float>(2,0) = pow(control_error.at<float>(2,0),3);
+        control_error.at<float>(3,0) = pow(control_error.at<float>(3,0),3);
+        control_error.at<float>(4,0) = pow(control_error.at<float>(4,0),3);
+        control_error.at<float>(5,0) = pow(control_error.at<float>(5,0),3);*/
 
         velocity_cam = lambda*control_error;
         velocity_tcp = cam_to_tcp*velocity_cam;
 
-	msg_control_error.linear.x = control_error.at<float>(0,0);
-	msg_control_error.linear.y = control_error.at<float>(1,0);
-	msg_control_error.linear.z = control_error.at<float>(2,0);
-	msg_control_error.angular.z = control_error.at<float>(3,0);
-	msg_control_error.angular.y = control_error.at<float>(4,0);
-	msg_control_error.angular.x = control_error.at<float>(5,0);
+        msg_control_error.linear.x = control_error.at<float>(0,0);
+        msg_control_error.linear.y = control_error.at<float>(1,0);
+        msg_control_error.linear.z = control_error.at<float>(2,0);
+        msg_control_error.angular.z = control_error.at<float>(3,0);
+        msg_control_error.angular.y = control_error.at<float>(4,0);
+        msg_control_error.angular.x = control_error.at<float>(5,0);
 
         // check if the stabilized and warped image is close enough to the reference image
         // if not set the velocities to zero for increased safety
@@ -187,18 +188,18 @@ int main(int argc, char** argv)
             vel.angular.y = 0.0;
             vel.angular.z = 0.0;
         }
-	if (control_error_norm < pow(10.0,-3.0)){
+    if (control_error_norm < pow(10.0,-3.0)){
             vel.linear.x = 0.0;
             vel.linear.y = 0.0;
             vel.linear.z = 0.0;
             vel.angular.x = 0.0;
             vel.angular.y = 0.0;
             vel.angular.z = 0.0;
-	}
-	pub_error.publish(msg_control_error);
-        pub.publish(vel);
-        ros::spinOnce();
-        loop_rate.sleep();
-	time++;
+    }
+    pub_control_error.publish(msg_control_error);
+    pub.publish(vel);
+    ros::spinOnce();
+    loop_rate.sleep();
+    time++;
   }
 }
