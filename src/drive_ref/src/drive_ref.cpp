@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
  
     // frequency of published messages
-    ros::Rate loop_rate(100); //Sending q with 100Hz
+    ros::Rate loop_rate(1000); //Sending q with 100Hz
 
         //ROS_INFO("Initializing parameters...");
         // list of parameters
