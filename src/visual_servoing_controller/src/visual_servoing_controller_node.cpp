@@ -11,11 +11,12 @@
 
 cv::Mat G = cv::Mat::zeros(3,3,CV_32F);
 float score = 0;
-float G_l_values[9] = {1.0, 0.0, 145.0, 0.0, 1.0, 65.0, 0.0, 0.0, 1.0};
+float G_l_values[9] = {1.0, 0.0, 195.0, 0.0, 1.0, 115.0, 0.0, 0.0, 1.0};
 cv::Mat G_l = cv::Mat(3, 3, CV_32F, G_l_values);
 float pi = 3.14159;
 int r = 60;
 float f = 0.001;
+float theta, trace;
 
 void callback(const vtec_msgs::TrackingResult& msg)
 {
@@ -59,7 +60,8 @@ int main(int argc, char** argv)
     // frequency of published messages
     ros::Rate loop_rate(120);
     float gamma = 1.0; // positioning task
-    float alpha = 0.5 * 100; // positioning task
+    float alpha = 0.7 * 100; // positioning task
+    //float alpha = 0.65 * 100; // positioning task
     //float gamma = 0.5; // tracking task
     //float alpha = 0.9 * 100; // tracking task
     // list of parameters
@@ -85,6 +87,7 @@ int main(int argc, char** argv)
     //cv::Mat m_antisym = cv::Mat::zeros(3,3,CV_32F);
     cv::Mat control_error = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat zero = cv::Mat::zeros(6,1,CV_32F);
+    cv::Mat zero_r3 = cv::Mat::zeros(3,1,CV_32F);
     cv::Mat velocity_cam = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat velocity_tcp = cv::Mat::zeros(6,1,CV_32F);
     // Transformation matrix from the camera frame to the TCP
@@ -103,6 +106,9 @@ int main(int argc, char** argv)
     int time = 0;
     double control_error_norm;
     double control_error_exp;
+    cv::Mat rot = cv::Mat::zeros(3,1,CV_32F);
+    cv::Mat u = cv::Mat::zeros(3,1,CV_32F);
+
     
 
     while (ros::ok()) {
@@ -137,12 +143,28 @@ int main(int argc, char** argv)
         H_I = H-cv::Mat::eye(3,3,CV_32F);
         H_I_m = H_I*m_norm;
 
+	rot.at<float>(0,0) = -H_vex_help.at<float>(1,2);
+	rot.at<float>(1,0) = H_vex_help.at<float>(0,2);
+	rot.at<float>(2,0) = H_vex_help.at<float>(1,0);
+
+	//std::cout << "rot: "<< rot << std::endl;
+
+	//rot_norm = cv::norm(rot, zero, cv::NORM_L2);
+	trace = H.at<float>(0,0) + H.at<float>(1,1) + H.at<float>(2,2);
+	if(trace >= 1){
+		theta = asin(cv::norm(rot, zero_r3, cv::NORM_L2));
+	}
+	else{
+		theta = pi - asin(cv::norm(rot, zero_r3, cv::NORM_L2));
+	}
+	u = rot/cv::norm(rot, zero_r3, cv::NORM_L2);
+
         control_mat_2.at<float>(0,0) = H_I_m.at<float>(0,0);
         control_mat_2.at<float>(1,0) = H_I_m.at<float>(1,0);
         control_mat_2.at<float>(2,0) = H_I_m.at<float>(2,0);
-        control_mat_2.at<float>(3,0) = H_vex_help.at<float>(2,1);
-        control_mat_2.at<float>(4,0) = H_vex_help.at<float>(0,2);
-        control_mat_2.at<float>(5,0) = H_vex_help.at<float>(1,0);
+        control_mat_2.at<float>(3,0) = u.at<float>(0,0)*theta;
+        control_mat_2.at<float>(4,0) = u.at<float>(1,0)*theta;
+        control_mat_2.at<float>(5,0) = u.at<float>(2,0)*theta;
 
         // nonmetric control error and TCP velocity calculation
         control_error = control_mat_1*control_mat_2;

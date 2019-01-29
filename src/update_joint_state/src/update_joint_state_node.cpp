@@ -27,7 +27,7 @@ Eigen::MatrixXd             vel_tcp(NB_STATES,1);
 //geometry_msgs::Twist vel_tcp_out;
 
 int thrott_time = 10;
-float elapsedtime = 0.01; //Jacobi rate f = 100 Hz -> elpasedtime = 0.01
+float elapsedtime = 0.002; //Jacobi rate f = 100 Hz -> elpasedtime = 0.01
                            //make this variable global
 float limit_redundancy = 0.6;
 
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
  
  
     // frequency of published messages
-    ros::Rate loop_rate(100); //Sending q with 100Hz
+    ros::Rate loop_rate(500); //Sending q with 100Hz
 
         //ROS_INFO("Initializing parameters...");
         // list of parameters
@@ -207,12 +207,12 @@ int main(int argc, char** argv)
 
         while (ros::ok())
          {
-           ROS_INFO_STREAM_THROTTLE(thrott_time,"INSIDE while calc and publish q,q_dot");
+           //ROS_INFO_STREAM_THROTTLE(thrott_time,"INSIDE while calc and publish q,q_dot");
 
             //  PSEUDOCODE
             //qdotk = jacobipseudoinv * vel
             //qk+1 = qk + (jacobipseudoinv * vel) * elapsedtime
-	    start_ = ros::WallTime::now();
+	    //start_ = ros::WallTime::now();
             pseudo_inverse(jacobimatrix, pinv, false); // 1 ms delay
 
 	   //q_dot rate 100 Hz
@@ -253,9 +253,9 @@ int main(int argc, char** argv)
             q_dot = pinv * vel_tcp + (Identity - (pinv*jacobimatrix))*q_dot_z; // q_dot >> joint_states/vel
 	//else 
 	  //  q_dot = pinv * vel_tcp;
-    std::cout << "q_dot_z: " << q_dot_z << std::endl;
-    std::cout << "q_in: " << q_in.data[0] << std::endl;
-    std::cout << "pinv x jacobi: " << pinv*jacobimatrix << std::endl;
+    //std::cout << "q_dot_z: " << q_dot_z << std::endl;
+    //std::cout << "q_in: " << q_in.data[0] << std::endl;
+    //std::cout << "pinv x jacobi: " << pinv*jacobimatrix << std::endl;
 
 	    nulldynamic = false;
 
@@ -300,7 +300,7 @@ int main(int argc, char** argv)
 
             //ROS_INFO("After q calc -> rdy to publish q !");
 	//vel_norm = cv::norm(vel_tcp, zero, cv::NORM_L2);
-	if(joint_states_received && vel_tcp.norm() > 0.0)
+	if(joint_states_received)// && vel_tcp.norm() > 0.0)
 	{
 		//if we do not receive any vel -> stop sending joint states! -> avoid drift
             pub.publish(q_out); //first pub must be triggered by first sub to joint_states!!!
@@ -312,10 +312,11 @@ int main(int argc, char** argv)
 	    //pub_vel.publish(vel_tcp_out);
 		joint_states_received = false;
 //sub topic time >> thd -> send q_out = q_in
+    //std::cout << "We are publishing q " << std::endl;
 	}
-	 end_ = ros::WallTime::now();
-	double execution_time = (end_ - start_).toNSec() * 1e-6;
-	ROS_INFO_STREAM("Timedifference (ms): " << execution_time);
+	 //end_ = ros::WallTime::now();
+	//double execution_time = (end_ - start_).toNSec() * 1e-6;
+	//ROS_INFO_STREAM("Timedifference (ms): " << execution_time);
             ros::spinOnce();
             loop_rate.sleep();
 

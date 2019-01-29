@@ -681,6 +681,12 @@ cv_wrapper_LIB_DEPENDS:STATIC=general;/opt/ros/kinetic/lib/libcv_bridge.so;gener
 cv_wrapper_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/vtec_ros/cv_wrapper
 
 //Value Computed by CMake
+ddvs_controller_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/ddvs_controller
+
+//Value Computed by CMake
+ddvs_controller_SOURCE_DIR:STATIC=/home/robotlab/catkin_ws/src/ddvs_controller
+
+//Value Computed by CMake
 drive_BINARY_DIR:STATIC=/home/robotlab/catkin_ws/build/drive
 
 //Value Computed by CMake
@@ -1311,7 +1317,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=36
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=37
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

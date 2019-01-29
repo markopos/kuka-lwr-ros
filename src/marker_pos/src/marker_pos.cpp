@@ -11,28 +11,36 @@
 #include <cstdlib>
 #include <math.h>
 #include <tf/tf.h>
+#include "sensor_msgs/JointState.h"
 //#include <FastResearchInterface.h>
 //#include <utils/pseudo_inversion.h>
 
 
+#define NB_JOINTS 7
+#define NB_STATES 6
 
 geometry_msgs::Twist pose, dir_tcp, dir_cam, pose_tcp;
+std_msgs::Float64MultiArray   q_in;
 double roll, pitch, yaw;
 float scale_lin = 10.0;
 float scale_ang = 1.0;
 tf::Matrix3x3 rotmatrix;//, rm;
-double sqw, sqx, sqy, sqz,m00,m01,m02,m10,m11,m12,m20,m21,m22,qy, qw,qx,qz;
+//double sqw, sqx, sqy, sqz,m00,m01,m02,m10,m11,m12,m20,m21,m22,qy, qw,qx,qz;
 //cv::Mat m, rm, rot, u;
-float theta, trace;
+//float theta, trace;
 float pi = 3.14159;
 //double rot_norm;
 geometry_msgs::Pose position;
 tf::Quaternion quaternion;
-cv::Mat           jacobimatrix;
+cv::Mat jacobimatrix = cv::Mat::eye(NB_STATES,NB_JOINTS,CV_32F);
+std_msgs::Float64MultiArray state_x;
+bool marker_visible = false;
+float d[NB_JOINTS];
+geometry_msgs::Pose EEPoseWorld;
 
 
 // 30 Hz
-void Callback(const geometry_msgs::PoseStamped& pose_st)
+void Callback_marker(const geometry_msgs::PoseStamped& pose_st)
 {	
 
 pose.linear.x = pose_st.pose.position.x;
@@ -42,37 +50,43 @@ pose.linear.z = pose_st.pose.position.z;
 position.position.x = pose_st.pose.position.x;
 position.position.y = pose_st.pose.position.y;
 position.position.z = pose_st.pose.position.z;
-
+*/
 position.orientation.w = pose_st.pose.orientation.w;
 position.orientation.y = pose_st.pose.orientation.y;
 position.orientation.z = pose_st.pose.orientation.z;
-position.orientation.x = pose_st.pose.orientation.x;*/
-
-
-//std::cout << "pose: "<< pose_st.pose.orientation << std::endl;
+position.orientation.x = pose_st.pose.orientation.x;
 
 tf::Quaternion q(pose_st.pose.orientation.x, pose_st.pose.orientation.y, pose_st.pose.orientation.z, pose_st.pose.orientation.w);
 tf::Matrix3x3 m(q);
-rotmatrix  = m;
+//rotmatrix  = m;
 m.getRPY(roll, pitch, yaw);
 pose.angular.x = roll;
 pose.angular.y = pitch;
 pose.angular.z = yaw;
+
+std::cout << "pose_marker: "<< pose << std::endl;
+
+marker_visible = true;
 }
 
+//100 Hz
 void Callback_jacobi(const std_msgs::Float64MultiArray& jacobian_matrix)
 {
-    cv::Mat jacobimatrix = cv::Mat::zeros(6,6,CV_64F);
-	//rate = 100 Hz
-    // ROS_INFO("INSIDE Callback_jacobi");
-//jacobian_matrix.data.resize(NB_STATES*NB_JOINTS);
-    for(int i=0;i<6;i++)
+    for(int i=0;i<NB_STATES;i++)
     {
-        for(int j=0;j<7;j++)
+        for(int j=0;j<NB_JOINTS;j++)
         {
             jacobimatrix.at<float>(i,j) = jacobian_matrix.data[i*7+j];
         }
     }
+}
+
+void Callback_joint_states(const sensor_msgs::JointState& joint_states)
+{	
+	//100 Hz
+    //ROS_INFO("INSIDE Callback_joint_states");
+    q_in.data = joint_states.position;
+    //joint_states_received = true;
 }
 
 
@@ -82,17 +96,18 @@ int main(int argc, char** argv)
    
     ros::init(argc, argv, "marker_pos");
     ros::NodeHandle nh;
-    ros::Subscriber sub = nh.subscribe("/aruco_single/pose",10, Callback);
+    ros::Subscriber sub = nh.subscribe("/aruco_single/pose",10, Callback_marker);
+    ros::Subscriber sub_q = nh.subscribe("/lwr/joint_states",10, Callback_joint_states);
     ros::Publisher pub = nh.advertise<geometry_msgs::Pose>("/lwr/joint_controllers/command_pos", 10);
     ros::Publisher pub_cmd_joint = nh.advertise<std_msgs::Float64MultiArray >("/lwr/joint_controllers/command_joint_pos",10);
     ros::Subscriber sub_jacobian = nh.subscribe("/lwr/jacobian_matrix",10, Callback_jacobi);
- 
- 
+    ros::Publisher pub_cmd_pose = nh.advertise<geometry_msgs::Pose>("/lwr/joint_controllers/command_pos", 10);
+
     // frequency of published messages
-    ros::Rate loop_rate(30); //Sending q with 100Hz
+    ros::Rate loop_rate(100); //Sending q with 100Hz
 
     // Transformation matrix from the camera frame to the TCP
-    float cam_to_tcp_rot_val[9] = {0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0}; //rot around z axis
+    float cam_to_tcp_rot_val[3][3] = {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}; //rot around z axis
     cv::Mat cam_to_tcp_rot = cv::Mat(3, 3, CV_32F, cam_to_tcp_rot_val);
     float cam_to_tcp_tra_skew_val[9] = {0.0, 0.0, 0.12, 0.0, 0.0, 0.0, -0.12, 0.0, 0.0};
     cv::Mat cam_to_tcp_tra_skew = cv::Mat(3, 3, CV_32F, cam_to_tcp_tra_skew_val);
@@ -101,22 +116,78 @@ int main(int argc, char** argv)
     cv::hconcat(cam_to_tcp_rot, cam_to_tcp_tra_skew*cam_to_tcp_rot, cam_to_tcp);
     cv::hconcat(cv::Mat::zeros(3, 3, CV_32F), cam_to_tcp_rot, cam_to_tcp_h);
     cv::vconcat(cam_to_tcp, cam_to_tcp_h, cam_to_tcp);
-    cv::Mat direction_cam = cv::Mat::zeros(6,1,CV_32F);
+   /* cv::Mat direction_cam = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat direction_tcp = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat zero = cv::Mat::zeros(3,1,CV_32F);
     cv::Mat m = cv::Mat::zeros(3,3,CV_32F);
-    cv::Mat rm = cv::Mat::zeros(3,3,CV_32F);
-    cv::Mat pose_cv = cv::Mat::zeros(6,1,CV_32F);
+    cv::Mat rm = cv::Mat::zeros(3,3,CV_32F);*/
+    cv::Mat pose_cam = cv::Mat::zeros(6,1,CV_32F);
+    cv::Mat pose_cam_3 = cv::Mat::zeros(3,1,CV_32F);
+    cv::Mat pose_cam_x3 = cv::Mat::zeros(3,1,CV_32F);
     cv::Mat pose_tcp = cv::Mat::zeros(6,1,CV_32F);
-    cv::Mat jacobimatrix = cv::Mat::zeros(6,6,CV_32F);
-    cv::Mat pinv = cv::Mat::zeros(6,6,CV_32F);
+    cv::Mat pose_tcp_3 = cv::Mat::zeros(3,1,CV_32F);
+    cv::Mat pose_tcp_x3 = cv::Mat::zeros(3,1,CV_32F);
+    //cv::Mat jacobimatrix = cv::Mat::eye(NB_STATES,NB_JOINTS,CV_32F);
+    cv::Mat pinv = cv::Mat::eye(NB_JOINTS,NB_STATES,CV_32F);
     cv::Mat pose_m = cv::Mat::zeros(6,1,CV_32F);
-    cv::Mat x_m = cv::Mat::zeros(6,1,CV_32F);;
-std_msgs::Float64MultiArray state_x;
+    cv::Mat x_m = cv::Mat::zeros(4,1,CV_32F);;
+    q_in.data.resize(NB_JOINTS);
+    //cv::Mat alpha = cv::Mat::(7,1,CV_32F, {-pi/2, pi/2, pi/2, -pi/2, -pi/2, p/2, 0});
+    //cv::Mat d = cv::Mat::(7,1,CV_32F, {0.313, 0.0, 0.4, 0, 0.390, 0, 0.100}); //überprüfe Werte, v.a den letzten
+    cv::Mat T07 = cv::Mat::zeros(4,4,CV_32F);
+    cv::Mat pose_tcp_hom = cv::Mat::zeros(4,1,CV_32F);
+
+	double matrix01[4][4]= {{cos(q_in.data[1]), 0, -sin(q_in.data[1]), 0},
+		{sin(q_in.data[1]), 0, cos(q_in.data[1]), 0},
+		{0, -1, 0, 0.313},
+		{0, 0, 0, 1}};
+	cv::Mat T1 = cv::Mat(4,4,CV_32F, matrix01);
+
+	double matrix12[4][4] = {{cos(q_in.data[2]), 0, sin(q_in.data[2]), 0},
+		{sin(q_in.data[2]), 0, -cos(q_in.data[2]), 0},
+		{0, 1, 0, 0},
+		{0, 0, 0, 1}};
+	cv::Mat T2 = cv::Mat(4,4,CV_32F, matrix12);
+
+	double matrix23[4][4] = {{cos(q_in.data[3]), 0, sin(q_in.data[3]), 0},
+		{sin(q_in.data[3]), 0, -cos(q_in.data[3]), 0},
+		{0, 1, 0, 0.4},
+		{0, 0, 0, 1}};
+	cv::Mat T3 = cv::Mat(4,4,CV_32F, matrix23);
+
+	double matrix34[4][4] = {{cos(q_in.data[4]), 0, -sin(q_in.data[4]), 0},
+		{sin(q_in.data[4]),0, cos(q_in.data[4]), 0},
+		{0, -1, 0, 0},
+		{0, 0, 0, 1}};
+	cv::Mat T4 = cv::Mat(4,4,CV_32F, matrix34);
+
+	double matrix45[4][4] = {{cos(q_in.data[5]), 0, -sin(q_in.data[5]), 0},
+		{sin(q_in.data[5]), 0, cos(q_in.data[5]), 0},
+		{0, -1, 0, 0.390},
+		{0, 0, 0, 1}};
+	cv::Mat T5 = cv::Mat(4,4,CV_32F, matrix45);
+
+	double matrix56[4][4] = {{cos(q_in.data[6]), 0, sin(q_in.data[6]), 0},
+		{sin(q_in.data[6]), 0, -cos(q_in.data[6]), 0},
+		{0, 1, 0, 0},
+		{0, 0, 0, 1}};
+	cv::Mat T6 = cv::Mat(4,4,CV_32F, matrix56);
+
+	double matrix67[4][4] = {{cos(q_in.data[7]), -sin(q_in.data[7]), 0, 0},
+		{sin(q_in.data[7]), cos(q_in.data[7]), 0, 0},
+		{0, 0, 1, 0.100},
+		{0, 0, 0, 1}};
+	cv::Mat T7 = cv::Mat(4,4,CV_32F, matrix67);
+
 
 
     while (ros::ok())
      {
+
+	//4x4
+	cv::Mat T07 = T1*T2*T3*T4*T5*T6*T7; //Analytical Kinematic of KUKA LWR4 7dof
+
+
 /*
 sqw = qw*qw;
 sqx = qx*qx;;
@@ -190,16 +261,41 @@ rot.at<float>(2,0) = rm.at<float>(1,0);
 	dir_cam.angular.y = u.at<float>(1,0)*theta;
 	dir_cam.angular.z = u.at<float>(2,0)*theta;*/
 
-	pose_cv.at<float>(0,0) = pose.linear.x;
-	pose_cv.at<float>(1,0) = pose.linear.y;
-	pose_cv.at<float>(2,0) = pose.linear.z -0.05;
-	pose_cv.at<float>(3,0) = pose.angular.z;
-	pose_cv.at<float>(4,0) = pose.angular.y;
-	pose_cv.at<float>(5,0) = pose.angular.x;
+	/*pose_cam.at<float>(0,0) = pose.linear.x;
+	pose_cam.at<float>(1,0) = pose.linear.y;
+	pose_cam.at<float>(2,0) = pose.linear.z;// -0.05;
+	pose_cam.at<float>(3,0) = 0;//pose.angular.z;
+	pose_cam.at<float>(4,0) = 0;//pose.angular.y;
+	pose_cam.at<float>(5,0) = 0;//pose.angular.x;*/
 
+	pose_cam_3.at<float>(0,0) = pose.linear.x;
+	pose_cam_3.at<float>(1,0) = pose.linear.y;
+	pose_cam_3.at<float>(2,0) = pose.linear.z - 0.4;
 
-	pose_tcp = cam_to_tcp * pose_cv;
+	pose_cam_x3.at<float>(3,0) = pose.angular.z;
+	pose_cam_x3.at<float>(4,0) = pose.angular.y;
+	pose_cam_x3.at<float>(5,0) = pose.angular.x;
 
+ 	pose_tcp_3 = cam_to_tcp_rot * pose_cam_3;
+ 	pose_tcp_x3 = cam_to_tcp_rot * pose_cam_x3;
+
+	//pose_tcp = cam_to_tcp * pose_cam;
+
+	pose_tcp.at<float>(0,0) = pose_tcp_3.at<float>(0,0);
+	pose_tcp.at<float>(1,0) = pose_tcp_3.at<float>(1,0);
+	pose_tcp.at<float>(2,0) = pose_tcp_3.at<float>(2,0);
+
+	pose_tcp.at<float>(3,0) = pose_tcp_x3.at<float>(3,0);
+	pose_tcp.at<float>(4,0) = pose_tcp_x3.at<float>(4,0);
+	pose_tcp.at<float>(5,0) = pose_tcp_x3.at<float>(5,0);
+
+	std::cout << "pose_tcp: "<< pose_tcp << std::endl;
+
+	pose_tcp_hom.at<float>(0,0) = pose_tcp.at<float>(0,0);
+	pose_tcp_hom.at<float>(1,0) = pose_tcp.at<float>(1,0);
+	pose_tcp_hom.at<float>(2,0) = pose_tcp.at<float>(2,0);
+	pose_tcp_hom.at<float>(3,0) = 1.0;
+/*
 double roll;
 double pitch;
 double yaw;
@@ -225,7 +321,7 @@ double yaw;
 position.orientation.x = q.x;
 position.orientation.y = q.y;
 position.orientation.z = q.z;
-position.orientation.w = q.w;
+position.orientation.w = q.w;*/
 
 	/*
 	dir_tcp.linear.x = direction_tcp.at<float>(0,0)*scale_lin;
@@ -237,7 +333,7 @@ position.orientation.w = q.w;
 	dir_tcp.angular.z = 0;//direction_tcp.at<float>(3,0)*scale_ang;
 	
 	std::cout << "cam_to_tcp: " << cam_to_tcp << std::endl;
-	std::cout << "dir_cam: "<< dir_cam << std::endl;*/
+	std::cout << "dir_cam: "<< dir_cam << std::endl;
 	std::cout << "pose: "<< position << std::endl;
 
 	pose_m.at<float>(0,0) = pose.linear.x;
@@ -245,21 +341,43 @@ position.orientation.w = q.w;
 	pose_m.at<float>(2,0) = pose.linear.z;
 	pose_m.at<float>(3,0) = pose.angular.x;
 	pose_m.at<float>(4,0) = pose.angular.y;
-	pose_m.at<float>(5,0) = pose.angular.z;
+	pose_m.at<float>(5,0) = pose.angular.z;*/
 
-          //  pseudo_inverse(jacobimatrix, pinv, false); //function input should be Eigen::MatrixXd
-invert(jacobimatrix, pinv, false);
-	//x_m = pinv * pose_m;
+       
+	//cv::invert(jacobimatrix, pinv, 1); // DECOMP_SVD      = 1
+	//x_m = pinv * pose_tcp;
 
+
+	// Base <- TCP
+	x_m = T07 * pose_tcp_hom;
+
+	
+EEPoseWorld.position.x = x_m.at<float>(0,0);
+EEPoseWorld.position.y = x_m.at<float>(1,0);
+EEPoseWorld.position.z = x_m.at<float>(2,0);
+
+EEPoseWorld.orientation.x = position.orientation.x;
+EEPoseWorld.orientation.y = position.orientation.y;
+EEPoseWorld.orientation.z = position.orientation.z;
+EEPoseWorld.orientation.w = position.orientation.w;
+
+
+	/*state_x.data.resize(7);
 	state_x.data[0] = x_m.at<float>(0,0);
 	state_x.data[1] = x_m.at<float>(1,0);
 	state_x.data[2] = x_m.at<float>(2,0);	
 	state_x.data[3] = x_m.at<float>(3,0);
 	state_x.data[4] = x_m.at<float>(4,0);
 	state_x.data[5] = x_m.at<float>(5,0);
-	state_x.data.resize(6);
+	state_x.data[6] = x_m.at<float>(6,0);*/
 
-	pub_cmd_joint.publish(state_x);
+	std::cout << "EEPoseWorld: "<< EEPoseWorld << std::endl;
+
+	if(marker_visible){
+	//pub_cmd_joint.publish(state_x);
+	pub_cmd_pose.publish(EEPoseWorld);
+	}
+	marker_visible = false;
         ros::spinOnce();
         loop_rate.sleep();
 

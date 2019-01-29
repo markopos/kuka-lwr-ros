@@ -16,6 +16,7 @@ cv::Mat G_l = cv::Mat(3, 3, CV_32F, G_l_values);
 float pi = 3.14159;
 int r = 60;
 float f = 0.001;
+float T = 200;
 
 void callback(const vtec_msgs::TrackingResult& msg)
 {
@@ -84,6 +85,7 @@ int main(int argc, char** argv)
     cv::Mat H_I = cv::Mat::zeros(3,3,CV_32F);
     //cv::Mat m_antisym = cv::Mat::zeros(3,3,CV_32F);
     cv::Mat control_error = cv::Mat::zeros(6,1,CV_32F);
+    cv::Mat control_error_zero = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat zero = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat velocity_cam = cv::Mat::zeros(6,1,CV_32F);
     cv::Mat velocity_tcp = cv::Mat::zeros(6,1,CV_32F);
@@ -110,7 +112,7 @@ int main(int argc, char** argv)
     //open the gripper
     srv.request.position = 0.0;
     client.call(srv);
-    srv.request.position = 0.3;
+    srv.request.position = 0.9;
 
     while (ros::ok()) {
         //compute control law
@@ -154,10 +156,10 @@ int main(int argc, char** argv)
         // nonmetric control error and TCP velocity calculation
         control_error = control_mat_1*control_mat_2;
 	control_error_norm = cv::norm(control_error, zero, cv::NORM_L2);
-	std::cout << "control_err_norm:" << control_error_norm << std::endl;
+	//std::cout << "control_err_norm:" << control_error_norm << std::endl;
 	//cv::exp(-gamma*control_error_norm, control_error_exp);
 	lambda = alpha * exp(-gamma*control_error_norm);	
-	std::cout << "lambda:" << lambda << std::endl;
+	//std::cout << "lambda:" << lambda << std::endl;
 	//lambda = alpha * control_error_exp;
 	/*control_error.at<float>(0,0) = pow(control_error.at<float>(0,0),3);
 	control_error.at<float>(1,0) = pow(control_error.at<float>(1,0),3);
@@ -166,7 +168,15 @@ int main(int argc, char** argv)
 	control_error.at<float>(4,0) = pow(control_error.at<float>(4,0),3);
 	control_error.at<float>(5,0) = pow(control_error.at<float>(5,0),3);*/
 
-        velocity_cam = lambda*control_error;
+	if((time/4) <= T){
+        velocity_cam = lambda*(control_error - control_error_zero + control_error_zero * ((time/4)/T)) - control_error_zero/T;
+	//std::cout << "Traj.Follow " << std::endl;
+	}
+	else{
+	velocity_cam = lambda*control_error;
+	
+	//std::cout << "vel = lambda * ctr_err " << std::endl;
+	}
         velocity_tcp = cam_to_tcp*velocity_cam;
 
 	msg_control_error.linear.x = control_error.at<float>(0,0);
@@ -202,6 +212,7 @@ int main(int argc, char** argv)
             vel.angular.y = 0.0;
             vel.angular.z = 0.0;
 		gripper_state = true;
+	    srv.request.position = 0.9;
 	    if (client.call(srv))
 	    {
 		std::cout << "gripper closed" << std::endl;

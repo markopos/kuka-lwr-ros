@@ -11,13 +11,14 @@
 
 cv::Mat G = cv::Mat::zeros(3,3,CV_32F);
 float score = 0;
-float G_l_values[9] = {1.0, 0.0, 145.0, 0.0, 1.0, 65.0, 0.0, 0.0, 1.0};
+float G_l_values[9] = {1.0, 0.0, 195.0, 0.0, 1.0, 115.0, 0.0, 0.0, 1.0};
 cv::Mat G_l = cv::Mat(3, 3, CV_32F, G_l_values);
 float pi = 3.14159;
 int r = 60;
 float f = 0.001;
 bool initial_state = true;
-int T = 300;
+float T = 200;
+bool initial_homography = false;
 
 void callback(const vtec_msgs::TrackingResult& msg)
 {
@@ -35,7 +36,9 @@ void callback(const vtec_msgs::TrackingResult& msg)
     G.at<float>(2,2) = msg.homography[8];
     score = msg.score;
     G = G*G_l.inv(); // G_l = initial guess
-
+    if (initial_homography == false) {
+	initial_homography = true;
+    }
 }
 
 int main(int argc, char** argv)
@@ -61,7 +64,7 @@ int main(int argc, char** argv)
     // frequency of published messages
     ros::Rate loop_rate(120);
     float gamma = 1.0; // positioning task
-    float alpha = 0.5 * 100; // positioning task
+    float alpha = 0.9 * 100; // positioning task
     //float gamma = 0.5; // tracking task
     //float alpha = 0.9 * 100; // tracking task
     // list of parameters
@@ -103,7 +106,7 @@ int main(int argc, char** argv)
     cv::vconcat(cam_to_tcp, cam_to_tcp_h, cam_to_tcp);
     //std::cout << cam_to_tcp << std::endl;
     //cv::Mat camera_to_tcp
-    int time = 0;
+    float time = 0;
     double control_error_norm;
     double control_error_exp;
     bool gripper_state = false;
@@ -111,8 +114,8 @@ int main(int argc, char** argv)
     dynamixel_gripper::DualGripperGrasp srv;
     
 // open the gripper
-    //srv.request.position = 0.0;
-    //client.call(srv);
+    srv.request.position = 0.0;
+    client.call(srv);
     srv.request.position = 0.3;
 
     while (ros::ok()) {
@@ -154,17 +157,22 @@ int main(int argc, char** argv)
         control_mat_2.at<float>(4,0) = H_vex_help.at<float>(0,2);
         control_mat_2.at<float>(5,0) = H_vex_help.at<float>(1,0);
 
+
         // nonmetric control error and TCP velocity calculation
         control_error = control_mat_1*control_mat_2;
-	if(initial_state = true){
-	control_error_zero = control_error;
+	if(initial_state == true && initial_homography == true){
+	control_error.copyTo(control_error_zero);
 	initial_state = false;
+	std::cout << "set initial control error; t = " << time/4 << " T = "<< T << std::endl;
 	}
+	if(time/4 < T){
+	std::cout << "control_err_zero:" << control_error_zero << std::endl;
 	control_error_norm = cv::norm(control_error, zero, cv::NORM_L2);
-	std::cout << "control_err_norm:" << control_error_norm << std::endl;
+	std::cout << "control_err:" << control_error << std::endl;
+	}
 	//cv::exp(-gamma*control_error_norm, control_error_exp);
-	lambda = 1 * 100;//= alpha * exp(-gamma*control_error_norm);	
-	std::cout << "lambda:" << lambda << std::endl;
+	lambda = alpha * exp(-gamma*control_error_norm);	
+	//std::cout << "lambda:" << lambda << std::endl;
 	//lambda = alpha * control_error_exp;
 	/*control_error.at<float>(0,0) = pow(control_error.at<float>(0,0),3);
 	control_error.at<float>(1,0) = pow(control_error.at<float>(1,0),3);
@@ -180,11 +188,11 @@ int main(int argc, char** argv)
 	else{
 	velocity_cam = lambda*control_error;
 	
-	std::cout << "vel = lambda * ctr_err " << std::endl;
+	//std::cout << "vel = lambda * ctr_err " << std::endl;
 	}
         velocity_tcp = cam_to_tcp*velocity_cam;
 
-	std::cout << "velocity_cam:" << velocity_cam << std::endl;
+	//std::cout << "velocity_cam:" << velocity_cam << std::endl;
 
 	msg_control_error.linear.x = control_error.at<float>(0,0);
 	msg_control_error.linear.y = control_error.at<float>(1,0);
@@ -195,7 +203,7 @@ int main(int argc, char** argv)
 
         // check if the stabilized and warped image is close enough to the reference image
         // if not set the velocities to zero for increased safety
-        if (score >= 0.85){ //&& gripper_state == false) {
+        if (score >= 0.85 && initial_homography == true){ //&& gripper_state == false) {
             vel.linear.x = velocity_tcp.at<float>(0,0);
             vel.linear.y = velocity_tcp.at<float>(1,0);
             vel.linear.z = velocity_tcp.at<float>(2,0);
